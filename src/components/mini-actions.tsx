@@ -1,8 +1,8 @@
 'use client';
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useRef } from "react";
 import { usePetStore } from "@/stores/pet-store";
-import { getActionMessage } from "@/systems/chat-system";
+import { getActionMessage, getChatResponse } from "@/systems/chat-system";
 
 interface MiniActionButtonProps {
   icon: string;
@@ -56,6 +56,9 @@ interface MiniActionsProps {
 
 export function MiniActions({ onAction }: MiniActionsProps) {
   const [isExpanded, setIsExpanded] = useState(false);
+  const [chatOpen, setChatOpen] = useState(false);
+  const [chatText, setChatText] = useState("");
+  const inputRef = useRef<HTMLInputElement>(null);
   const { feed, play, sleep, currentAnimation } = usePetStore();
 
   const isAnimating =
@@ -86,10 +89,26 @@ export function MiniActions({ onAction }: MiniActionsProps) {
     setTimeout(() => usePetStore.setState({ currentAnimation: "idle" }), 2500);
   }, [sleep, isAnimating, onAction, ct]);
 
+  const handleChatToggle = useCallback(() => {
+    setChatOpen((prev) => {
+      if (!prev) setTimeout(() => inputRef.current?.focus(), 50);
+      return !prev;
+    });
+  }, []);
+
+  const handleChatSubmit = useCallback(() => {
+    const trimmed = chatText.trim();
+    if (!trimmed) return;
+    const response = getChatResponse(trimmed, ct);
+    onAction(response);
+    setChatText("");
+    setChatOpen(false);
+  }, [chatText, ct, onAction]);
+
   return (
     <div
       onMouseEnter={() => setIsExpanded(true)}
-      onMouseLeave={() => setIsExpanded(false)}
+      onMouseLeave={() => { setIsExpanded(false); setChatOpen(false); }}
       style={{
         position: "fixed",
         bottom: 24,
@@ -101,6 +120,65 @@ export function MiniActions({ onAction }: MiniActionsProps) {
         alignItems: "flex-end",
       }}
     >
+      {chatOpen && (
+        <div
+          style={{
+            display: "flex",
+            gap: 6,
+            alignItems: "center",
+            background: "rgba(255,255,255,0.95)",
+            borderRadius: 20,
+            padding: "4px 6px 4px 14px",
+            boxShadow: "0 2px 12px rgba(0,0,0,0.12)",
+            animation: "chatSlideIn 0.25s ease",
+          }}
+        >
+          <input
+            ref={inputRef}
+            value={chatText}
+            onChange={(e) => setChatText(e.target.value)}
+            onKeyDown={(e) => { if (e.key === "Enter") handleChatSubmit(); }}
+            placeholder="말 걸어보기..."
+            style={{
+              border: "none",
+              outline: "none",
+              background: "transparent",
+              fontSize: 13,
+              fontWeight: 500,
+              color: "#334155",
+              width: 140,
+              fontFamily: "inherit",
+            }}
+          />
+          <button
+            onClick={handleChatSubmit}
+            style={{
+              width: 32,
+              height: 32,
+              borderRadius: 16,
+              border: "none",
+              background: chatText.trim() ? "linear-gradient(135deg, #3b82f6, #2563eb)" : "rgba(148,163,184,0.3)",
+              color: "white",
+              fontSize: 14,
+              cursor: chatText.trim() ? "pointer" : "default",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              transition: "all 0.2s",
+            }}
+            aria-label="보내기"
+          >
+            ➤
+          </button>
+        </div>
+      )}
+      <MiniActionButton
+        icon="💬"
+        label="대화하기"
+        disabled={false}
+        onClick={handleChatToggle}
+        isExpanded={isExpanded}
+      />
       <MiniActionButton
         icon="🍖"
         label="밥주기"

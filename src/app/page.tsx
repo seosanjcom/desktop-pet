@@ -124,10 +124,11 @@ export default function Home() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [onboarded]);
 
-  // 이미지 변경 시 말풍선 즉시 숨기기
+  // 액션 시작 시에만 말풍선 숨기기 (walk/idle/sit 전환은 무시)
+  const actionAnims = new Set(["eat", "play", "sleep", "drag"]);
   useEffect(() => {
     if (!onboarded) return;
-    hideMessage();
+    if (actionAnims.has(currentAnimation)) hideMessage();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentAnimation]);
 

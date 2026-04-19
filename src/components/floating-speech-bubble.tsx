@@ -10,19 +10,24 @@ interface FloatingSpeechBubbleProps {
 }
 
 export function FloatingSpeechBubble({ message, visible, petX, petY }: FloatingSpeechBubbleProps) {
-  const [isNew, setIsNew] = useState(false);
+  const [displayMsg, setDisplayMsg] = useState<string | null>(null);
+  const [show, setShow] = useState(false);
   const prevMsgRef = useRef<string | null>(null);
+  const fadeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
-    if (message && message !== prevMsgRef.current) {
-      setIsNew(true);
+    if (visible && message) {
+      if (fadeTimerRef.current) clearTimeout(fadeTimerRef.current);
+      setDisplayMsg(message);
+      requestAnimationFrame(() => setShow(true));
       prevMsgRef.current = message;
-      const t = setTimeout(() => setIsNew(false), 300);
-      return () => clearTimeout(t);
+    } else if (!visible) {
+      setShow(false);
+      fadeTimerRef.current = setTimeout(() => setDisplayMsg(null), 400);
     }
-  }, [message]);
+  }, [visible, message]);
 
-  if (!visible || !message) return null;
+  if (!displayMsg) return null;
 
   return (
     <div
@@ -33,7 +38,7 @@ export function FloatingSpeechBubble({ message, visible, petX, petY }: FloatingS
         transform: "translateX(-50%)",
         zIndex: 20,
         pointerEvents: "none",
-        animation: isNew ? "bubbleIn 0.25s cubic-bezier(0.34,1.56,0.64,1)" : undefined,
+        transition: "left 0.15s ease, top 0.15s ease",
       }}
     >
       <div
@@ -46,12 +51,12 @@ export function FloatingSpeechBubble({ message, visible, petX, petY }: FloatingS
           color: "#334155",
           whiteSpace: "nowrap",
           boxShadow: "0 4px 14px rgba(0,0,0,0.12)",
-          opacity: visible ? 1 : 0,
-          transition: "opacity 0.3s ease",
+          opacity: show ? 1 : 0,
+          transform: show ? "scale(1)" : "scale(0.85)",
+          transition: "opacity 0.35s ease, transform 0.35s cubic-bezier(0.34,1.56,0.64,1)",
         }}
       >
-        {message}
-        {/* 말풍선 꼬리 */}
+        {displayMsg}
         <div
           style={{
             position: "absolute",
@@ -67,13 +72,6 @@ export function FloatingSpeechBubble({ message, visible, petX, petY }: FloatingS
           }}
         />
       </div>
-
-      <style>{`
-        @keyframes bubbleIn {
-          from { transform: translateX(-50%) scale(0.6); opacity: 0; }
-          to   { transform: translateX(-50%) scale(1);   opacity: 1; }
-        }
-      `}</style>
     </div>
   );
 }
