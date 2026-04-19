@@ -67,6 +67,7 @@ export function MiniActions({ onAction }: MiniActionsProps) {
     currentAnimation === "sleep";
 
   const ct = usePetStore((s) => s.characterType);
+  const occ = usePetStore((s) => s.userOccupation);
 
   const handleFeed = useCallback(() => {
     if (isAnimating) return;
@@ -99,11 +100,11 @@ export function MiniActions({ onAction }: MiniActionsProps) {
   const handleChatSubmit = useCallback(() => {
     const trimmed = chatText.trim();
     if (!trimmed) return;
-    const response = getChatResponse(trimmed, ct);
+    const response = getChatResponse(trimmed, ct, occ);
     onAction(response);
     setChatText("");
     setChatOpen(false);
-  }, [chatText, ct, onAction]);
+  }, [chatText, ct, occ, onAction]);
 
   return (
     <div
