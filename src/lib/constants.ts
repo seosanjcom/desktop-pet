@@ -1,0 +1,12 @@
+export const STAT_DECAY_PER_MINUTE = 1;
+export const FEED_HUNGER_AMOUNT = 20;
+export const PLAY_MOOD_AMOUNT = 20;
+export const PLAY_ENERGY_COST = 5;
+export const SLEEP_ENERGY_AMOUNT = 25;
+export const SLEEP_MOOD_COST = 5;
+export const STAT_MIN = 0;
+export const STAT_MAX = 100;
+export const OFFLINE_CAP_HOURS = 24;
+export const ANGRY_THRESHOLD = 20;
+export const HAPPY_THRESHOLD = 70;
+export const CANVAS_LOGICAL_SIZE = 128;

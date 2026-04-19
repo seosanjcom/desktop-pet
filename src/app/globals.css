@@ -1,0 +1,73 @@
+@import "tailwindcss";
+
+@font-face {
+  font-family: 'Ownglyph_ParkDaHyun';
+  src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/2411-3@1.0/Ownglyph_ParkDaHyun.woff2') format('woff2');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+:root {
+  --background: #f0f9ff;
+  --foreground: #1e293b;
+}
+
+html, body {
+  background: transparent !important;
+  color: var(--foreground);
+  font-family: 'Ownglyph_ParkDaHyun', -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  min-height: 100vh;
+}
+
+/* 픽셀 아트 렌더링 */
+.pixel-art {
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+}
+
+/* 부드러운 버튼 호버 */
+.action-btn {
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.action-btn:hover:not(:disabled) {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+}
+
+.action-btn:active:not(:disabled) {
+  transform: translateY(0px);
+}
+
+/* 플로팅 텍스트 애니메이션 */
+@keyframes floatUp {
+  0% {
+    opacity: 1;
+    transform: translateY(0) translateX(-50%);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-40px) translateX(-50%);
+  }
+}
+
+.float-text {
+  animation: floatUp 1s ease-out forwards;
+}
+
+/* 말풍선 페이드 인/아웃 */
+@keyframes fadeInScale {
+  0% {
+    opacity: 0;
+    transform: scale(0.8) translateX(-50%);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) translateX(-50%);
+  }
+}
+
+.speech-bubble {
+  animation: fadeInScale 0.25s ease-out forwards;
+}
