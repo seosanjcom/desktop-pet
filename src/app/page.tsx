@@ -241,32 +241,54 @@ export default function Home() {
       {/* 미니 액션 (우측 하단) */}
       {isOnboarded && <MiniActions onAction={handlePetMessage} />}
 
-      {/* 설정 버튼 (좌측 상단) */}
+      {/* 설정 + 종료 버튼 (좌측 상단) */}
       {isOnboarded && (
-        <button
-          onClick={() => setShowSettings(true)}
-          style={{
-            position: "fixed",
-            top: 16,
-            left: 16,
-            zIndex: 30,
-            width: 36,
-            height: 36,
-            borderRadius: 12,
-            border: "none",
-            background: "rgba(148,163,184,0.15)",
-            color: "#94a3b8",
-            fontSize: 18,
-            cursor: "pointer",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            transition: "all 0.2s",
-          }}
-          aria-label="설정"
-        >
-          ⚙
-        </button>
+        <div style={{ position: "fixed", top: 16, left: 16, zIndex: 30, display: "flex", gap: 6 }}>
+          <button
+            onClick={() => setShowSettings(true)}
+            style={{
+              width: 36,
+              height: 36,
+              borderRadius: 12,
+              border: "none",
+              background: "rgba(148,163,184,0.15)",
+              color: "#94a3b8",
+              fontSize: 18,
+              cursor: "pointer",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              transition: "all 0.2s",
+            }}
+            aria-label="설정"
+          >
+            ⚙
+          </button>
+          <button
+            onClick={() => {
+              const api = (window as unknown as { electronAPI?: { quitApp: () => void } }).electronAPI;
+              if (api?.quitApp) api.quitApp();
+              else window.close();
+            }}
+            style={{
+              width: 36,
+              height: 36,
+              borderRadius: 12,
+              border: "none",
+              background: "rgba(239,68,68,0.15)",
+              color: "#ef4444",
+              fontSize: 16,
+              cursor: "pointer",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              transition: "all 0.2s",
+            }}
+            aria-label="종료"
+          >
+            ✕
+          </button>
+        </div>
       )}
 
       {/* 설정 모달 */}

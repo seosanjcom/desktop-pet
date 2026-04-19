@@ -3,7 +3,7 @@ import type { CursorPos } from "@/engine/sprite-renderer";
 import type { CharacterRenderer } from "./index";
 import { spriteCache, drawSprite, drawZzz, drawSparkle, drawTear } from "./image-sprite";
 
-const BASE = "/characters/tani/";
+const BASE = "./characters/tani/";
 
 const ANIMATION_IMAGES: Partial<Record<AnimationName, string>> = {
   walk: "walk",

@@ -112,8 +112,7 @@ export function SettingsModal({ onClose }: SettingsModalProps) {
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
-        background: "rgba(0,0,0,0.25)",
-        backdropFilter: "blur(4px)",
+        background: "rgba(30,41,59,0.85)",
       }}
     >
       <div

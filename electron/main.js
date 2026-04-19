@@ -13,7 +13,7 @@ function createWindow() {
     frame: false,
     alwaysOnTop: true,
     resizable: false,
-    skipTaskbar: true,
+    skipTaskbar: false,
     hasShadow: false,
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
@@ -72,6 +72,11 @@ function createTray() {
 
 ipcMain.handle('get-desktop-icons', async () => {
   return getIcons();
+});
+
+ipcMain.on('quit-app', () => {
+  app.isQuitting = true;
+  app.quit();
 });
 
 app.whenReady().then(() => {
