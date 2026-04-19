@@ -21,9 +21,29 @@ import {
   getIconMessage,
 } from "@/systems/icon-chat-system";
 
+type ElectronAPI = {
+  isElectron: boolean;
+  getDesktopIcons: () => Promise<DesktopIcon[]>;
+  quitApp: () => void;
+  setIgnoreMouse: (ignore: boolean) => void;
+};
+
+function getElectronAPI(): ElectronAPI | null {
+  const api = (window as unknown as { electronAPI?: ElectronAPI }).electronAPI;
+  return api?.isElectron ? api : null;
+}
+
+function useClickThrough() {
+  const onEnter = useCallback(() => getElectronAPI()?.setIgnoreMouse(false), []);
+  const onLeave = useCallback(() => getElectronAPI()?.setIgnoreMouse(true), []);
+  return { onMouseEnter: onEnter, onMouseLeave: onLeave };
+}
+
 export default function Home() {
   const { isOnboarded } = usePetStore();
   const [showSettings, setShowSettings] = useState(false);
+  const [showUI, setShowUI] = useState(false);
+  const clickThrough = useClickThrough();
 
   // 말풍선 상태 (page에서 통합 관리)
   const [message, setMessage] = useState<string | null>(null);
@@ -214,11 +234,15 @@ export default function Home() {
         inset: 0,
         background: "transparent",
         overflow: "hidden",
+        pointerEvents: "none",
       }}
     >
-      {!isOnboarded && <OnboardingModal />}
+      {!isOnboarded && (
+        <div style={{ pointerEvents: "auto" }} {...clickThrough}>
+          <OnboardingModal />
+        </div>
+      )}
 
-      {/* 말풍선 (캐릭터 위에 따라다님) */}
       <FloatingSpeechBubble
         message={message}
         visible={visible}
@@ -226,73 +250,92 @@ export default function Home() {
         petY={petPos.y}
       />
 
-      {/* 캐릭터 */}
       {isOnboarded && (
-        <PetCharacter
-          onPetMessage={handlePetMessage}
-          onPositionChange={handlePositionChange}
-          desktopIcons={desktopIcons}
-        />
-      )}
-
-      {/* 미니 스탯 (좌측 하단) */}
-      {isOnboarded && <MiniStat />}
-
-      {/* 미니 액션 (우측 하단) */}
-      {isOnboarded && <MiniActions onAction={handlePetMessage} />}
-
-      {/* 설정 + 종료 버튼 (좌측 상단) */}
-      {isOnboarded && (
-        <div style={{ position: "fixed", top: 16, left: 16, zIndex: 30, display: "flex", gap: 6 }}>
-          <button
-            onClick={() => setShowSettings(true)}
-            style={{
-              width: 36,
-              height: 36,
-              borderRadius: 12,
-              border: "none",
-              background: "rgba(148,163,184,0.15)",
-              color: "#94a3b8",
-              fontSize: 18,
-              cursor: "pointer",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              transition: "all 0.2s",
-            }}
-            aria-label="설정"
-          >
-            ⚙
-          </button>
-          <button
-            onClick={() => {
-              const api = (window as unknown as { electronAPI?: { quitApp: () => void } }).electronAPI;
-              if (api?.quitApp) api.quitApp();
-              else window.close();
-            }}
-            style={{
-              width: 36,
-              height: 36,
-              borderRadius: 12,
-              border: "none",
-              background: "rgba(239,68,68,0.15)",
-              color: "#ef4444",
-              fontSize: 16,
-              cursor: "pointer",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              transition: "all 0.2s",
-            }}
-            aria-label="종료"
-          >
-            ✕
-          </button>
+        <div style={{ pointerEvents: "auto" }} {...clickThrough}>
+          <PetCharacter
+            onPetMessage={handlePetMessage}
+            onPositionChange={handlePositionChange}
+            desktopIcons={desktopIcons}
+          />
         </div>
       )}
 
-      {/* 설정 모달 */}
-      {showSettings && <SettingsModal onClose={() => setShowSettings(false)} />}
+      {/* 미니 스탯 (좌측 하단) — 토글 */}
+      {isOnboarded && showUI && (
+        <div style={{ pointerEvents: "auto" }} {...clickThrough}>
+          <MiniStat />
+        </div>
+      )}
+
+      {/* 미니 액션 (우측 하단) — 토글 */}
+      {isOnboarded && showUI && (
+        <div style={{ pointerEvents: "auto" }} {...clickThrough}>
+          <MiniActions onAction={handlePetMessage} />
+        </div>
+      )}
+
+      {/* 메뉴 버튼 (좌측 상단) */}
+      {isOnboarded && (
+        <div
+          style={{ position: "fixed", top: 16, left: 16, zIndex: 30, display: "flex", gap: 6, pointerEvents: "auto" }}
+          {...clickThrough}
+        >
+          <button
+            onClick={() => setShowUI((v) => !v)}
+            style={{
+              width: 36, height: 36, borderRadius: 12, border: "none",
+              background: showUI ? "rgba(59,130,246,0.2)" : "rgba(148,163,184,0.15)",
+              color: showUI ? "#3b82f6" : "#94a3b8",
+              fontSize: 16, cursor: "pointer",
+              display: "flex", alignItems: "center", justifyContent: "center",
+              transition: "all 0.2s",
+            }}
+            aria-label="메뉴 토글"
+          >
+            ☰
+          </button>
+          {showUI && (
+            <>
+              <button
+                onClick={() => setShowSettings(true)}
+                style={{
+                  width: 36, height: 36, borderRadius: 12, border: "none",
+                  background: "rgba(148,163,184,0.15)", color: "#94a3b8",
+                  fontSize: 18, cursor: "pointer",
+                  display: "flex", alignItems: "center", justifyContent: "center",
+                  transition: "all 0.2s",
+                }}
+                aria-label="설정"
+              >
+                ⚙
+              </button>
+              <button
+                onClick={() => {
+                  const api = getElectronAPI();
+                  if (api?.quitApp) api.quitApp();
+                  else window.close();
+                }}
+                style={{
+                  width: 36, height: 36, borderRadius: 12, border: "none",
+                  background: "rgba(239,68,68,0.15)", color: "#ef4444",
+                  fontSize: 16, cursor: "pointer",
+                  display: "flex", alignItems: "center", justifyContent: "center",
+                  transition: "all 0.2s",
+                }}
+                aria-label="종료"
+              >
+                ✕
+              </button>
+            </>
+          )}
+        </div>
+      )}
+
+      {showSettings && (
+        <div style={{ pointerEvents: "auto" }} {...clickThrough}>
+          <SettingsModal onClose={() => setShowSettings(false)} />
+        </div>
+      )}
     </main>
   );
 }

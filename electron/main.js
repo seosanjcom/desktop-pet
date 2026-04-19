@@ -23,7 +23,7 @@ function createWindow() {
   });
 
   mainWindow.maximize();
-  mainWindow.setIgnoreMouseEvents(false);
+  mainWindow.setIgnoreMouseEvents(true, { forward: true });
 
   mainWindow.loadFile(path.join(__dirname, '..', 'out', 'index.html'));
 
@@ -72,6 +72,15 @@ function createTray() {
 
 ipcMain.handle('get-desktop-icons', async () => {
   return getIcons();
+});
+
+ipcMain.on('set-ignore-mouse', (_, ignore) => {
+  if (!mainWindow) return;
+  if (ignore) {
+    mainWindow.setIgnoreMouseEvents(true, { forward: true });
+  } else {
+    mainWindow.setIgnoreMouseEvents(false);
+  }
 });
 
 ipcMain.on('quit-app', () => {
