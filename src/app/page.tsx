@@ -80,6 +80,7 @@ export default function Home() {
     currentEmotion,
     currentAnimation,
     petName,
+    userName,
     stats,
     lastChatTime,
     lastActionTime,
@@ -115,7 +116,7 @@ export default function Home() {
 
   useEffect(() => {
     if (!onboarded) return;
-    const msg = getWelcomeMessage(petName, characterType);
+    const msg = getWelcomeMessage(petName, characterType, userName);
     const t = setTimeout(() => {
       showMessage(msg, 5000);
       setChatTime(Date.now());
@@ -171,7 +172,7 @@ export default function Home() {
         }
         if (shouldTriggerChat(lastChatTime, now)) {
           const hour = new Date().getHours();
-          const msg = getRandomMessage(currentEmotion, stats, lastActionTime, hour, characterType, userOccupation);
+          const msg = getRandomMessage(currentEmotion, stats, lastActionTime, hour, characterType, userOccupation, userName);
           if (!visibleRef.current) {
             showMessage(msg, 4000);
             setChatTime(now);

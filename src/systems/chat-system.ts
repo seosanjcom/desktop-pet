@@ -885,33 +885,39 @@ const OCCUPATION_MESSAGES: Record<UserOccupation, Record<TimeOfDay, string[]>> =
   },
 };
 
+function maybeAddName(msg: string, userName?: string): string {
+  if (!userName || Math.random() > 0.35) return msg;
+  return `${userName}아~ ${msg}`;
+}
+
 export function getRandomMessage(
   emotion: PetEmotion,
   stats: PetStats,
   _lastActionTime: number,
   hour: number,
   characterType?: CharacterType,
-  occupation?: UserOccupation
+  occupation?: UserOccupation,
+  userName?: string
 ): string {
   const d = getDialogue(characterType);
   const timeOfDay = getTimeOfDay(hour);
 
-  if (stats.hunger < 30 && Math.random() < 0.25) return pickRandom(d.stat.hungry);
-  if (stats.energy < 30 && Math.random() < 0.2) return pickRandom(d.stat.tired);
-  if (stats.mood < 30 && Math.random() < 0.2) return pickRandom(d.stat.bored);
+  if (stats.hunger < 30 && Math.random() < 0.25) return maybeAddName(pickRandom(d.stat.hungry), userName);
+  if (stats.energy < 30 && Math.random() < 0.2) return maybeAddName(pickRandom(d.stat.tired), userName);
+  if (stats.mood < 30 && Math.random() < 0.2) return maybeAddName(pickRandom(d.stat.bored), userName);
 
   if (emotion === "angry" || emotion === "sad" || emotion === "sleepy") {
-    return pickRandom(d.emotion[emotion]);
+    return maybeAddName(pickRandom(d.emotion[emotion]), userName);
   }
 
   const pool = Math.random();
-  if (pool < 0.25) return pickRandom(d.time[timeOfDay]);
-  if (pool < 0.50) return pickRandom(d.emotion[emotion]);
+  if (pool < 0.25) return maybeAddName(pickRandom(d.time[timeOfDay]), userName);
+  if (pool < 0.50) return maybeAddName(pickRandom(d.emotion[emotion]), userName);
   if (pool < 0.75 && occupation) {
     const occMsgs = OCCUPATION_MESSAGES[occupation]?.[timeOfDay];
-    if (occMsgs?.length) return pickRandom(occMsgs);
+    if (occMsgs?.length) return maybeAddName(pickRandom(occMsgs), userName);
   }
-  return pickRandom(d.affection);
+  return maybeAddName(pickRandom(d.affection), userName);
 }
 
 export function getActionReactionMessage(
@@ -941,9 +947,10 @@ export function getCursorNearMessage(characterType?: CharacterType): string {
   return pickRandom(getDialogue(characterType).cursorNear);
 }
 
-export function getWelcomeMessage(petName: string, characterType?: CharacterType): string {
+export function getWelcomeMessage(petName: string, characterType?: CharacterType, userName?: string): string {
   const d = getDialogue(characterType);
-  return petName ? `${petName}${d.welcome}` : d.firstMeet;
+  const base = petName ? `${petName}${d.welcome}` : d.firstMeet;
+  return userName ? `${userName}아~ ${base}` : base;
 }
 
 export function getHoverMessage(
@@ -1359,21 +1366,44 @@ const OCCUPATION_CHAT: OccupationChatResponses = {
   },
 };
 
+function insertUserName(msg: string, userName: string): string {
+  if (!userName) return msg;
+  const patterns: [RegExp, string][] = [
+    [/^넌 /, `${userName}(이)는 `],
+    [/^너 /, `${userName} `],
+    [/ 너 /, ` ${userName} `],
+    [/ 넌 /, ` ${userName}(이)는 `],
+  ];
+  for (const [re, rep] of patterns) {
+    if (re.test(msg)) return msg.replace(re, rep);
+  }
+  if (Math.random() < 0.5) return `${userName}아~ ${msg}`;
+  return `${userName}! ${msg}`;
+}
+
 export function getChatResponse(
   userMsg: string,
   characterType: CharacterType = "orangutan",
-  occupation?: UserOccupation
+  occupation?: UserOccupation,
+  userName?: string
 ): string {
   const lower = userMsg.toLowerCase();
   const responses = USER_CHAT_RESPONSES[characterType];
 
+  let result: string;
+  let matched = false;
   for (const [keywords, category] of KEYWORD_MAP) {
     if (keywords.some((kw) => lower.includes(kw))) {
       const occResponses = OCCUPATION_CHAT[category]?.[characterType];
-      if (occResponses?.length) return pickRandom(occResponses);
-      if (responses[category]) return pickRandom(responses[category]);
-      return pickRandom(responses.default);
+      if (occResponses?.length) { result = pickRandom(occResponses); matched = true; break; }
+      if (responses[category]) { result = pickRandom(responses[category]); matched = true; break; }
+      result = pickRandom(responses.default); matched = true; break;
     }
   }
-  return pickRandom(responses.default);
+  if (!matched) result = pickRandom(responses.default);
+
+  if (userName && Math.random() < 0.4) {
+    result = insertUserName(result!, userName);
+  }
+  return result!;
 }

@@ -68,6 +68,7 @@ export function MiniActions({ onAction }: MiniActionsProps) {
 
   const ct = usePetStore((s) => s.characterType);
   const occ = usePetStore((s) => s.userOccupation);
+  const un = usePetStore((s) => s.userName);
 
   const handleFeed = useCallback(() => {
     if (isAnimating) return;
@@ -100,11 +101,11 @@ export function MiniActions({ onAction }: MiniActionsProps) {
   const handleChatSubmit = useCallback(() => {
     const trimmed = chatText.trim();
     if (!trimmed) return;
-    const response = getChatResponse(trimmed, ct, occ);
+    const response = getChatResponse(trimmed, ct, occ, un);
     onAction(response);
     setChatText("");
     setChatOpen(false);
-  }, [chatText, ct, occ, onAction]);
+  }, [chatText, ct, occ, un, onAction]);
 
   return (
     <div
