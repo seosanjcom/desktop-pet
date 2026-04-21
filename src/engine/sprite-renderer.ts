@@ -1,5 +1,5 @@
 import type { PetEmotion, AnimationName, CharacterType } from "@/types/pet";
-import { OrangutanRenderer, CatRenderer, PenguinRenderer, HamsterRenderer } from "./characters";
+import { OrangutanRenderer, CatRenderer, HamsterRenderer } from "./characters";
 import type { CharacterRenderer } from "./characters";
 
 export interface CursorPos {
@@ -10,7 +10,6 @@ export interface CursorPos {
 const renderers: Record<CharacterType, CharacterRenderer> = {
   orangutan: new OrangutanRenderer(),
   cat: new CatRenderer(),
-  penguin: new PenguinRenderer(),
   hamster: new HamsterRenderer(),
 };
 

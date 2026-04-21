@@ -15,5 +15,4 @@ export interface CharacterRenderer {
 
 export { OrangutanRenderer } from "./orangutan";
 export { CatRenderer } from "./cat";
-export { PenguinRenderer } from "./penguin";
 export { HamsterRenderer } from "./hamster";

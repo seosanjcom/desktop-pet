@@ -6,7 +6,7 @@ import { renderPet } from "@/engine/sprite-renderer";
 import { CANVAS_LOGICAL_SIZE } from "@/lib/constants";
 import { CHARACTER_INFO, OCCUPATION_INFO, type CharacterType, type UserOccupation } from "@/types/pet";
 
-const CHARACTER_TYPES: CharacterType[] = ['orangutan', 'cat', 'penguin', 'hamster'];
+const CHARACTER_TYPES: CharacterType[] = ['orangutan', 'cat', 'hamster'];
 const OCCUPATIONS: UserOccupation[] = ['student', 'office', 'freelancer', 'selfEmployed', 'homemaker', 'jobSeeker', 'other'];
 
 function CharacterOption({ type, selected, onClick }: { type: CharacterType; selected: boolean; onClick: () => void }) {

@@ -1,6 +1,6 @@
 export type PetEmotion = 'happy' | 'neutral' | 'sad' | 'angry' | 'sleepy';
 
-export type CharacterType = 'orangutan' | 'cat' | 'penguin' | 'hamster';
+export type CharacterType = 'orangutan' | 'cat' | 'hamster';
 
 export type UserOccupation =
   | 'student'
@@ -28,7 +28,6 @@ export const CHARACTER_INFO: Record<CharacterType, {
 }> = {
   orangutan: { name: '우탄이', description: '포근한 오랑우탄 인형', color: '#8B4513' },
   cat: { name: '킹냥이', description: '근육질 고양이', color: '#f97316' },
-  penguin: { name: '펭이', description: '뒤뚱뒤뚱 펭귄', color: '#1e293b' },
   hamster: { name: '햄찌', description: '볼빵빵 햄스터', color: '#F5DEB3' },
 };
 
